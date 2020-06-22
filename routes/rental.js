@@ -17,10 +17,10 @@ router.post('/', async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    const customer = await Customer.findOne({ _id: req.body.customerId });
+    const customer = await Customer.findById(req.body.customerId);
     if (!customer) return res.status(400).send('Invalid customer');
 
-    const movie = await Movie.findOne({ _id: req.body.movieId });
+    const movie = await Movie.findById(req.body.movieId);
     if (!movie) return res.status(400).send('Invalid movie');
 
     if (movie.numberInStock === 0) return res.status(400).send('Movie no one in stock');
@@ -57,7 +57,7 @@ router.put('/:id', async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
     const { dateReturned } = req.body;
-    const rental = Rental.findOneAndUpdate(req.params.id,
+    const rental = Rental.findByIdAndRemove(req.params.id,
         { dateReturned },
         { new: true })
     await rental.save();
