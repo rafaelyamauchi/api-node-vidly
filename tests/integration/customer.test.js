@@ -13,37 +13,42 @@ describe('/api/customers', () => {
 
     describe('GET /', () => {
         it('should return all customers', async () => {
+            const token = new User().generateAuthToken();
             await Customer.insertMany(
                 [
                     { name: 'customer1', phone: '998289230', isGold: true },
                     { name: 'customer2', phone: '998289230', isGold: true }
                 ]
             );
-            const res = await request(server).get('/api/customers');
-            expect(res.status).toBe(200);
-            expect(res.body.some(c => c.name === 'customer1')).toBeTruthy();
-            expect(res.body.some(c => c.name === 'customer2')).toBeTruthy();
+            const result = await request(server).get('/api/customers').set('x-auth-token', token);
+            expect(result.status).toBe(200);
+            expect(result.body.some(c => c.name === 'customer1')).toBeTruthy();
+            expect(result.body.some(c => c.name === 'customer2')).toBeTruthy();
         });
     });
+
     describe('GET /:id', () => {
         it('should return only customer that is equal to the input id', async () => {
+            const token = new User().generateAuthToken();
             const customer = new Customer({ name: 'customer1', phone: '998289230', isGold: true })
             await customer.save();
-            const result = await request(server).get('/api/customers/' + customer._id);
+            const result = await request(server).get('/api/customers/' + customer._id).set('x-auth-token', token);
             expect(result.status).toBe(200);
             expect(result.body).toHaveProperty('name', customer.name);
         });
     });
     describe('GET /:id', () => {
         it('should return 404 if invalid id is passed', async () => {
-            const result = await request(server).get('/api/customers/1');
+            const token = new User().generateAuthToken();
+            const result = await request(server).get('/api/customers/1').set('x-auth-token', token);
             expect(result.status).toBe(404);
         });
     });
     describe('GET /:id', () => {
         it('should return 404 if no customer with given id', async () => {
+            const token = new User().generateAuthToken();
             const id = mongoose.Types.ObjectId();
-            const result = await request(server).get('/api/customers/' + id);
+            const result = await request(server).get('/api/customers/' + id).set('x-auth-token', token);
             expect(result.status).toBe(404);
         });
     });

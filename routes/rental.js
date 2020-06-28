@@ -10,7 +10,7 @@ const router = express.Router();
 
 Fawn.init(mongoose);
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     const rentals = await Rental.find().sort('-dateOut');
     res.send(rentals);
 });
@@ -54,7 +54,7 @@ router.post('/', auth, async (req, res) => {
     res.send(rental);
 });
 
-router.get('/:id', validateObjectid, async (req, res) => {
+router.get('/:id', auth, validateObjectid, async (req, res) => {
     const rental = await Rental.findById(req.params.id).sort('-dateOut');
     if (!rental) return res.status(404).send('The rental with given ID was not found');
     res.send(rental);

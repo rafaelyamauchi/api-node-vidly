@@ -201,5 +201,5 @@ describe('/api/genres', () => {
             expect(res.body).toHaveProperty('_id');
             expect(res.body).toHaveProperty('name');
         });
-    })
+    });
 });

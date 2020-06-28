@@ -18,6 +18,7 @@ describe('/api/rental', () => {
     describe('GET /', () => {
         const customerId = mongoose.Types.ObjectId();
         const movieId = mongoose.Types.ObjectId();
+        const token = new User().generateAuthToken();
         it('should return all rentals', async () => {
             await Rental.insertMany(
                 [
@@ -36,7 +37,7 @@ describe('/api/rental', () => {
                     }
                 ]
             );
-            const result = await request(server).get('/api/rental');
+            const result = await request(server).get('/api/rental').set('x-auth-token', token);
             expect(result.status).toBe(200);
             expect(result.body.some(c => c.customer.name === '12345')).toBeTruthy();
         });
@@ -46,6 +47,7 @@ describe('/api/rental', () => {
         it('should return only rental that is equal to the input id', async () => {
             const customerId = mongoose.Types.ObjectId();
             const movieId = mongoose.Types.ObjectId();
+            const token = new User().generateAuthToken();
 
             const rental = new Rental({
                 customer: {
@@ -61,7 +63,7 @@ describe('/api/rental', () => {
                 }
             });
             await rental.save();
-            const result = await request(server).get('/api/rental/' + rental._id);
+            const result = await request(server).get('/api/rental/' + rental._id).set('x-auth-token', token);
             expect(result.status).toBe(200);
             //expect(result.body).toHaveProperty('_id');
         })
@@ -69,15 +71,17 @@ describe('/api/rental', () => {
 
     describe('GET /:id', () => {
         it('should return 404 if invalid id is passed', async () => {
-            const result = await request(server).get('/api/rental/1');
+            const token = new User().generateAuthToken();
+            const result = await request(server).get('/api/rental/1').set('x-auth-token', token);
             expect(result.status).toBe(404);
         })
     });
 
     describe('GET /:id', () => {
         it('should return 404 if no customer with the given ID', async () => {
+            const token = new User().generateAuthToken();
             const id = mongoose.Types.ObjectId();
-            const result = await request(server).get('/api/rental/' + id);
+            const result = await request(server).get('/api/rental/' + id).set('x-auth-token', token);
             expect(result.status).toBe(404);
         })
     });

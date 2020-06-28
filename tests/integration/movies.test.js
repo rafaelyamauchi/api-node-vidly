@@ -257,5 +257,4 @@ describe('/api/movies', () => {
             expect(result.body).toHaveProperty('title');
         });
     });
-
 })

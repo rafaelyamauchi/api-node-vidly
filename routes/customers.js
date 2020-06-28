@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router();
 let server;
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     const customer = await Customer.find().sort('name');
     res.send(customer);
 });
