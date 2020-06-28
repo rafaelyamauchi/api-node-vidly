@@ -7,22 +7,24 @@ let server;
 describe('/api/genres', () => {
     beforeEach(() => { server = require('../../index'); });
     afterEach(async () => {
-        server.close();
+        await server.close();
         await Genre.deleteMany({});
     });
 
     describe('GET /', () => {
         it('should return all genres', async () => {
-            await Genre.collection.insertMany([
-                { name: 'Genre1' },
-                { name: 'Genre2' }
-            ]);
+            await Genre.insertMany(
+                [
+                    { name: 'genre1' },
+                    { name: 'genre2' }
+                ]
+            )
 
             const res = await request(server).get('/api/genres');
 
             expect(res.status).toBe(200);
-            expect(res.body.some(g => g.name === 'Genre1')).toBeTruthy();
-            expect(res.body.some(g => g.name === 'Genre2')).toBeTruthy();
+            expect(res.body.some(g => g.name === 'genre1')).toBeTruthy();
+            expect(res.body.some(g => g.name === 'genre2')).toBeTruthy();
         });
     });
 
@@ -30,9 +32,7 @@ describe('/api/genres', () => {
         it('should return only genre that is equal to the input id', async () => {
             const genre = new Genre({ name: 'genre1' });
             await genre.save();
-
             const res = await request(server).get('/api/genres/' + genre._id);
-
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('name', genre.name);
         })
@@ -41,7 +41,6 @@ describe('/api/genres', () => {
     describe('GET /:id', () => {
         it('should return 404 if invalid id is passed', async () => {
             const res = await request(server).get('/api/genres/1');
-
             expect(res.status).toBe(404);
         })
     });
@@ -49,9 +48,7 @@ describe('/api/genres', () => {
     describe('GET /:id', () => {
         it('should return 404 if no genre with the given ID', async () => {
             const id = mongoose.Types.ObjectId();
-            console.log(id);
             const res = await request(server).get('/api/genres/' + id);
-
             expect(res.status).toBe(404);
         })
     });

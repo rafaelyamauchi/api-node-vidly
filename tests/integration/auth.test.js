@@ -1,17 +1,18 @@
 const request = require('supertest');
 const { User } = require('../../models/users');
 const { Genre } = require('../../models/genres');
+let server;
 
 describe('auth middleware', () => {
     beforeEach(() => { server = require('../../index'); });
     afterEach(async () => {
-        server.close();
-        Genre.deleteMany({});
+        await server.close();
+        await Genre.deleteMany({});
     });
     let token;
 
-    const exec = () => {
-        return request(server)
+    const exec = async () => {
+        return await request(server)
             .post('/api/genres')
             .set('x-auth-token', token)
             .send({ name: 'genre1' });
@@ -34,7 +35,7 @@ describe('auth middleware', () => {
         expect(res.status).toBe(400);
     });
 
-    it('should return 400 if token is invalid', async () => {
+    it('should return 200 if token is valid', async () => {
         const res = await exec();
         expect(res.status).toBe(200);
     });

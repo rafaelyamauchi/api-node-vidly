@@ -1,3 +1,5 @@
+const validateObjectid = require('../middleware/validateObjectid');
+const auth = require('../middleware/auth');
 const { Rental, validate } = require('../models/rental');
 const { Movie } = require('../models/movies');
 const { Customer } = require('../models/customers');
@@ -13,7 +15,7 @@ router.get('/', async (req, res) => {
     res.send(rentals);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -49,18 +51,12 @@ router.post('/', async (req, res) => {
     } catch (error) {
         res.status(500).send('Something fail');
     }
-
     res.send(rental);
 });
 
-router.put('/:id', async (req, res) => {
-    const { error } = validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-    const { dateReturned } = req.body;
-    const rental = Rental.findByIdAndRemove(req.params.id,
-        { dateReturned },
-        { new: true })
-    await rental.save();
+router.get('/:id', validateObjectid, async (req, res) => {
+    const rental = await Rental.findById(req.params.id).sort('-dateOut');
+    if (!rental) return res.status(404).send('The rental with given ID was not found');
     res.send(rental);
 });
 
